@@ -220,6 +220,14 @@ function checkAchievements(){const d=dog(),stats={xp:d.xp,streak:d.streak,totalS
 function renderAchievements(){const d=dog();document.getElementById('achGrid').innerHTML=ACHIEVEMENTS.map(a=>{const unlocked=d.unlockedAch.includes(a.id);return`<div class="ach-card ${unlocked?'unlocked':''}"><div class="ach-icon">${a.icon}</div><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div>${!unlocked?`<div class="ach-lock">🔒 Noch nicht</div>`:''}</div>`}).join('')}
 function renderAll(){checkDailyReset();renderDogBars();renderCategories();renderXP();renderHeatmap();renderTasks();renderStats();renderAchievements();document.getElementById('streakNum').textContent=dog().streak}
 renderAll();
-</script>
+</script> 
+  <footer style="margin-top:80px; padding:32px 20px; text-align:center; background:#f3e8d8; color:#7c5235; font-size:0.85rem;">
+  <strong>🐾 Pfotenfreunde Herzensmomente</strong><br>
+  Ein kleines Verbindungstool von <strong>Pottpic</strong><br><br>
+
+  <a href="https://pottpic.de" target="_blank">Website</a> ·
+  <a href="https://pottpic.de/impressum" target="_blank">Impressum</a> ·
+  <a href="https://pottpic.de/datenschutz" target="_blank">Datenschutz</a>
+</footer>
 </body>
 </html>
