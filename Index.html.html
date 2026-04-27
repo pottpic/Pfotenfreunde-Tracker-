@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pfotenfreunde – Herzensmoment-Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1a120b;--bark:#3d2c1e;--wood:#7c5235;--amber:#e07b2a;--gold:#f5a623;
+  --sage:#6b8f71;--moss:#4a6741;--cream:#fdf7ef;--warm:#f3e8d8;--paper:#fffcf7;
+  --rose:#c96b6b;--blue:#6d91b8;--shadow:rgba(26,18,11,.13);--r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;background:var(--cream);
+  background-image:radial-gradient(ellipse 80% 50% at 0% 0%,rgba(224,123,42,.11) 0%,transparent 60%),
+  radial-gradient(ellipse 60% 60% at 100% 100%,rgba(107,143,113,.12) 0%,transparent 55%);
+  color:var(--ink);min-height:100vh;
+}
+.site-header{
+  background:linear-gradient(135deg,var(--bark) 55%,var(--wood));
+  color:#fff;padding:22px 28px 20px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,.22)
+}
+.site-header h1{font-family:'Fraunces',serif;font-size:1.55rem;letter-spacing:-.01em;display:flex;gap:10px;align-items:center}
+.site-header h1 span{color:var(--gold);font-style:italic}
+.header-sub{font-size:.78rem;color:rgba(255,255,255,.65);letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+.streak-badge{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 16px;font-size:.85rem;font-weight:700;display:flex;gap:6px;white-space:nowrap}
+.tabs{display:flex;background:var(--warm);border-bottom:2px solid rgba(0,0,0,.07);padding:0 24px;overflow-x:auto}
+.tab-btn{padding:14px 20px;font-family:'DM Sans';font-size:.9rem;font-weight:700;background:none;border:none;cursor:pointer;color:var(--wood);border-bottom:3px solid transparent;transition:.18s;white-space:nowrap}
+.tab-btn.active,.tab-btn:hover{color:var(--amber);border-bottom-color:var(--amber)}
+.page{display:none;padding:24px;max-width:860px;margin:0 auto}.page.active{display:block}
+.hero{
+  background:linear-gradient(135deg,rgba(255,252,247,.95),rgba(243,232,216,.8));
+  border:1.5px solid rgba(0,0,0,.07);box-shadow:0 4px 20px var(--shadow);
+  border-radius:var(--r);padding:24px;margin-bottom:18px
+}
+.hero h2{font-family:'Fraunces',serif;color:var(--bark);font-size:1.45rem;margin-bottom:8px}
+.hero p{color:var(--wood);line-height:1.5;font-size:.96rem}
+.dog-bar{display:flex;gap:10px;align-items:center;margin-bottom:22px;flex-wrap:wrap}
+.dog-chip{padding:7px 18px;border-radius:999px;border:2px solid var(--warm);background:white;font-size:.85rem;font-weight:700;cursor:pointer;color:var(--wood);display:flex;gap:6px}
+.dog-chip.active{background:var(--amber);border-color:var(--amber);color:white}.dog-chip:hover:not(.active){border-color:var(--amber)}
+.remove-dog{margin-left:4px;font-size:.75rem;opacity:.7;cursor:pointer}.remove-dog:hover{opacity:1}
+.btn-add-dog{padding:7px 16px;border-radius:999px;border:2px dashed var(--amber);background:transparent;color:var(--amber);font-size:.85rem;font-weight:700;cursor:pointer}
+.btn-add-dog:hover{background:var(--amber);color:white}
+.card{background:var(--paper);border-radius:var(--r);border:1.5px solid rgba(0,0,0,.07);box-shadow:0 4px 20px var(--shadow);padding:24px;margin-bottom:18px}
+.card-title{font-family:'Fraunces',serif;font-size:1.1rem;color:var(--bark);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:10px}
+.cat-card{background:white;border:2px solid var(--warm);border-radius:14px;padding:17px;cursor:pointer;transition:.2s;position:relative;overflow:hidden;min-height:132px}
+.cat-card:before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--c,var(--amber))}
+.cat-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px var(--shadow)}
+.cat-card.done{border-color:var(--c,var(--sage));background:rgba(107,143,113,.08)}
+.cat-icon{font-size:2rem;margin-bottom:8px}.cat-name{font-size:.88rem;font-weight:800;color:var(--bark);margin-bottom:4px}
+.cat-desc{font-size:.76rem;color:var(--wood);line-height:1.35}.cat-count{font-size:.75rem;color:var(--gold);font-weight:800;margin-top:8px}
+.check-mark{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:var(--c,var(--sage));color:white;font-size:.75rem;display:none;align-items:center;justify-content:center;font-weight:900}
+.cat-card.done .check-mark{display:flex}
+.task-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.task-item{display:flex;align-items:center;gap:12px;background:white;border:1.5px solid var(--warm);border-radius:12px;padding:12px 16px;transition:.2s;cursor:pointer}
+.task-item:hover{border-color:var(--amber)}.task-item.done{opacity:.62}.task-item.done .task-label{text-decoration:line-through}
+.task-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--warm);flex-shrink:0;display:flex;align-items:center;justify-content:center;background:white;font-size:.75rem}
+.task-item.done .task-check{background:var(--sage);border-color:var(--sage);color:white}.task-label{flex:1;font-size:.92rem;font-weight:500}.task-xp{font-size:.75rem;color:var(--gold);font-weight:700}.task-del{font-size:.75rem;color:#ccc;cursor:pointer;padding:2px 6px}.task-del:hover{color:#e55}
+.add-task-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.add-task-input{flex:1;min-width:160px;padding:10px 14px;border:2px solid var(--warm);border-radius:10px;font-family:'DM Sans';font-size:.9rem;color:var(--ink);background:white;outline:none}.add-task-input:focus{border-color:var(--amber)}
+.xp-select{padding:10px;border:2px solid var(--warm);border-radius:10px;font-family:'DM Sans';font-size:.85rem;background:white;color:var(--ink)}
+.btn-add-task{padding:10px 18px;border-radius:10px;border:none;background:var(--amber);color:white;font-family:'DM Sans';font-weight:700;font-size:.9rem;cursor:pointer}.btn-add-task:hover{background:var(--wood)}
+.xp-bar-wrap{margin-bottom:22px}.xp-bar-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}.xp-label{font-size:.8rem;font-weight:700;color:var(--wood);text-transform:uppercase;letter-spacing:.08em}.xp-value{font-family:'Fraunces',serif;font-size:1.1rem;color:var(--amber)}.xp-bar-bg{height:12px;background:var(--warm);border-radius:999px;overflow:hidden}.xp-bar-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--gold));border-radius:999px;transition:width .5s}
+.level-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--amber),var(--gold));color:white;border-radius:999px;padding:4px 14px;font-size:.82rem;font-weight:700;box-shadow:0 2px 8px rgba(224,123,42,.3);margin-bottom:14px}
+.heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:8px}.heatmap-day{aspect-ratio:1;border-radius:5px;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:var(--wood)}.heat1{background:rgba(224,123,42,.25)}.heat2{background:rgba(224,123,42,.5)}.heat3{background:rgba(224,123,42,.75);color:white}.heat4{background:var(--amber);color:white}.today{outline:2px solid var(--amber);outline-offset:1px}.heatmap-label{font-size:.7rem;color:var(--wood);font-weight:700;text-align:center;padding:3px 0}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:22px}.stat-tile{background:white;border:1.5px solid var(--warm);border-radius:14px;padding:16px;text-align:center}.stat-num{font-family:'Fraunces',serif;font-size:2rem;color:var(--amber);line-height:1}.stat-lbl{font-size:.72rem;color:var(--wood);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+.achievements-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px}.ach-card{background:white;border:2px solid var(--warm);border-radius:14px;padding:16px;text-align:center}.ach-card.unlocked{border-color:var(--gold);background:rgba(245,166,35,.07)}.ach-icon{font-size:2.2rem;margin-bottom:6px;filter:grayscale(1) opacity(.35)}.ach-card.unlocked .ach-icon{filter:none}.ach-name{font-size:.8rem;font-weight:800;color:var(--bark)}.ach-desc{font-size:.7rem;color:var(--wood);margin-top:2px}.ach-lock{font-size:.7rem;color:#bbb;margin-top:4px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bark);color:white;padding:12px 22px;border-radius:999px;font-weight:700;font-size:.88rem;box-shadow:0 6px 24px rgba(0,0,0,.25);transition:.35s;opacity:0;z-index:999;white-space:nowrap;display:flex;gap:8px}.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px}.modal-bg.open{display:flex}.modal{background:var(--paper);border-radius:20px;padding:28px;width:100%;max-width:360px;box-shadow:0 16px 50px rgba(0,0,0,.25)}.modal h3{font-family:'Fraunces',serif;font-size:1.2rem;color:var(--bark);margin-bottom:14px}.modal input{width:100%;padding:10px 14px;border:2px solid var(--warm);border-radius:10px;font-family:'DM Sans';font-size:.95rem;outline:none;margin-bottom:12px}.modal-btns{display:flex;gap:8px;justify-content:flex-end}.btn-cancel{padding:9px 18px;border-radius:10px;border:2px solid var(--warm);background:white;color:var(--wood);font-family:'DM Sans';font-weight:700;cursor:pointer}.btn-confirm{padding:9px 20px;border-radius:10px;border:none;background:var(--amber);color:white;font-family:'DM Sans';font-weight:700;cursor:pointer}
+@media(max-width:500px){.site-header h1{font-size:1.2rem}.page{padding:16px}.card,.hero{padding:16px}.site-header{padding:18px 16px}.streak-badge{font-size:.75rem;padding:6px 10px}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div>
+    <h1>🐾 Pfotenfreunde <span>Herzensmomente</span></h1>
+    <div class="header-sub">Bindung · Mut · Alltag · Training</div>
+  </div>
+  <div class="streak-badge"><span>🔥</span> <span id="streakNum">0</span> Tage verbunden</div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('training',this)">💛 Heute</button>
+  <button class="tab-btn" onclick="showTab('tasks',this)">🐕 Kleine Schritte</button>
+  <button class="tab-btn" onclick="showTab('stats',this)">📊 Rückblick</button>
+  <button class="tab-btn" onclick="showTab('achievements',this)">🏆 Mutmacher</button>
+</div>
+
+<div class="page active" id="tab-training">
+  <div class="hero">
+    <h2>Heute zählt nicht perfekt. Heute zählt Verbindung.</h2>
+    <p>Hake kleine Momente ab, die du mit deinem Hund bewusst erlebt hast. Training darf leicht sein: ein Blick, ein ruhiges Warten, ein mutiger Schritt, ein gemeinsamer Spaziergang. Genau daraus wachsen Vertrauen und schöne Erinnerungen.</p>
+  </div>
+  <div class="dog-bar" id="dogBar"><button class="btn-add-dog" onclick="openAddDog()">+ Hund hinzufügen</button></div>
+  <div class="xp-bar-wrap">
+    <div class="level-badge" id="levelBadge">⭐ Level 1 – Herzensstarter</div>
+    <div class="xp-bar-header"><span class="xp-label">Verbindungspunkte</span><span class="xp-value" id="xpDisplay">0 / 100 VP</span></div>
+    <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpFill" style="width:0%"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">💛 Deine Herzensmomente heute</div>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📅 Kleine Spuren, große Wirkung</div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:6px;">
+      <div class="heatmap-label">Mo</div><div class="heatmap-label">Di</div><div class="heatmap-label">Mi</div><div class="heatmap-label">Do</div><div class="heatmap-label">Fr</div><div class="heatmap-label">Sa</div><div class="heatmap-label">So</div>
+    </div>
+    <div class="heatmap" id="heatmap"></div>
+  </div>
+</div>
+
+<div class="page" id="tab-tasks">
+  <div class="hero"><h2>Kleine Schritte sind auch Schritte.</h2><p>Hier sammelst du Mini-Aufgaben, die euch im Alltag näher zusammenbringen. Nicht für Druck. Für Dranbleiben.</p></div>
+  <div class="dog-bar" id="dogBar2"><button class="btn-add-dog" onclick="openAddDog()">+ Hund hinzufügen</button></div>
+  <div class="card">
+    <div class="card-title">🌞 Tägliche Verbindung</div>
+    <ul class="task-list" id="dailyList"></ul>
+    <div class="add-task-row">
+      <input class="add-task-input" id="dailyInput" placeholder="z. B. 3 Minuten bewusst kuscheln…" onkeydown="if(event.key==='Enter')addTask('daily')">
+      <select class="xp-select" id="dailyXp"><option value="5">+5 VP</option><option value="10" selected>+10 VP</option><option value="20">+20 VP</option></select>
+      <button class="btn-add-task" onclick="addTask('daily')">+ Hinzufügen</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📌 Besondere Momente</div>
+    <ul class="task-list" id="extraList"></ul>
+    <div class="add-task-row">
+      <input class="add-task-input" id="extraInput" placeholder="z. B. neuen Ort entspannt erkundet…" onkeydown="if(event.key==='Enter')addTask('extra')">
+      <select class="xp-select" id="extraXp"><option value="5">+5 VP</option><option value="10" selected>+10 VP</option><option value="20">+20 VP</option><option value="50">+50 VP</option></select>
+      <button class="btn-add-task" onclick="addTask('extra')">+ Hinzufügen</button>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="tab-stats">
+  <div class="stats-row" id="statsRow"></div>
+  <div class="card"><div class="card-title">📊 Welche Verbindung wächst gerade?</div><div id="catStats"></div></div>
+  <div class="card"><div class="card-title">📅 Deine letzten 7 Tage</div><div id="weekStats"></div></div>
+</div>
+
+<div class="page" id="tab-achievements">
+  <div class="hero"><h2>Mutmacher statt Medaillenstress.</h2><p>Diese Erfolge erinnern dich daran: Ihr müsst nicht perfekt funktionieren. Ihr dürft zusammen wachsen.</p></div>
+  <div class="card"><div class="card-title">🏆 Eure kleinen Siege</div><div class="achievements-grid" id="achGrid"></div></div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>🐕 Hund hinzufügen</h3>
+    <input type="text" id="dogNameInput" placeholder="Name deines Hundes…" maxlength="20" onkeydown="if(event.key==='Enter')confirmAddDog()">
+    <div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">Abbrechen</button><button class="btn-confirm" onclick="confirmAddDog()">Hinzufügen</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CATEGORIES=[
+{id:'blick',name:'Blickkontakt',icon:'👀',color:'#e07b2a',xp:10,desc:'Ein kurzer Moment: Du und dein Hund wirklich beieinander.'},
+{id:'ruhe',name:'Ruhig geblieben',icon:'🌿',color:'#6b8f71',xp:15,desc:'Nicht perfekt. Aber entspannter als gestern. Das zählt.'},
+{id:'mut',name:'Mutmoment',icon:'🦁',color:'#c96b6b',xp:20,desc:'Etwas Schwieriges geschafft: neuer Ort, Geräusch oder Begegnung.'},
+{id:'ruf',name:'Gekommen, als es zählt',icon:'📣',color:'#e74c3c',xp:20,desc:'Ein Rückruf-Moment, der Vertrauen sichtbar macht.'},
+{id:'naehe',name:'Nähe zugelassen',icon:'🤎',color:'#7c5235',xp:10,desc:'Kuscheln, anlehnen, bei dir sein – ganz ohne Programm.'},
+{id:'spazier',name:'Bewusst gegangen',icon:'🐾',color:'#4a6741',xp:10,desc:'Eine Gassirunde nicht nur erledigt, sondern erlebt.'},
+{id:'spiel',name:'Gemeinsam gelacht',icon:'🎾',color:'#f5a623',xp:15,desc:'Spiel, Quatsch, Freude. Bindung darf auch albern sein.'},
+{id:'warten',name:'Geduldig gewartet',icon:'⏳',color:'#6d91b8',xp:15,desc:'Ein kleiner Alltagsmoment mit großer Wirkung.'},
+{id:'stolz',name:'Stolz-Moment',icon:'⭐',color:'#9b59b6',xp:25,desc:'Der Moment, bei dem du dachtest: Genau deshalb üben wir.'}
+];
+const LEVELS=[
+{lvl:1,name:'Herzensstarter',min:0},{lvl:2,name:'Vertrauensbauer',min:100},{lvl:3,name:'Alltagsheld',min:250},{lvl:4,name:'Bindungsprofi',min:500},{lvl:5,name:'Pfotenfreund-Star',min:1000}
+];
+const ACHIEVEMENTS=[
+{id:'first_train',icon:'🌟',name:'Erster Herzensmoment',desc:'Den ersten Moment bewusst gesammelt',cond:s=>s.totalSessions>=1},
+{id:'streak3',icon:'🔥',name:'3 Tage verbunden',desc:'3 Tage in Folge kleine Schritte gemacht',cond:s=>s.streak>=3},
+{id:'streak7',icon:'🏅',name:'Eine Woche Teamgefühl',desc:'7 Tage drangeblieben',cond:s=>s.streak>=7},
+{id:'xp100',icon:'💛',name:'100 Verbindungspunkte',desc:'100 VP gesammelt',cond:s=>s.xp>=100},
+{id:'xp500',icon:'🌠',name:'500 Verbindungspunkte',desc:'500 VP gesammelt',cond:s=>s.xp>=500},
+{id:'allcats',icon:'🎓',name:'Rundum verbunden',desc:'Alle Herzensmomente einmal erlebt',cond:s=>s.catsUsed>=CATEGORIES.length},
+{id:'tasks10',icon:'✅',name:'Kleinschritt-König:in',desc:'10 Aufgaben abgehakt',cond:s=>s.tasksDone>=10},
+{id:'dog2',icon:'🐕‍🦺',name:'Mehrpfoten-Haushalt',desc:'2 Hunde angelegt',cond:s=>s.dogs>=2}
+];
+
+function loadState(){try{return JSON.parse(localStorage.getItem('pfotenHerzensTracker')||'null')}catch(e){return null}}
+function saveState(){localStorage.setItem('pfotenHerzensTracker',JSON.stringify(state))}
+let state=loadState()||{dogs:['Luke'],activeDog:'Luke',data:{'Luke':{xp:0,streak:0,lastDate:null,totalSessions:0,tasksDone:0,catsUsed:0,unlockedAch:[],trainLog:{},tasks:{daily:[
+{id:1,label:'Einen Moment bewusst anschauen',xp:10,done:false},
+{id:2,label:'Eine kleine Sache loben',xp:10,done:false},
+{id:3,label:'Eine Gassirunde ohne Handy-Hektik erleben',xp:20,done:false}
+],extra:[]},lastDailyReset:null}}};
+function dog(){return state.data[state.activeDog]}
+function today(){return new Date().toISOString().split('T')[0]}
+function safe(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function showToast(msg){const t=document.getElementById('toast');t.innerHTML=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
+function showTab(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');btn.classList.add('active');renderAll()}
+function openAddDog(){document.getElementById('dogNameInput').value='';document.getElementById('modalBg').classList.add('open');setTimeout(()=>document.getElementById('dogNameInput').focus(),100)}
+function closeModal(){document.getElementById('modalBg').classList.remove('open')}
+function confirmAddDog(){const name=document.getElementById('dogNameInput').value.trim();if(!name)return;if(state.dogs.includes(name)){showToast('❗ Hund ist schon dabei');return}state.dogs.push(name);state.data[name]={xp:0,streak:0,lastDate:null,totalSessions:0,tasksDone:0,catsUsed:0,unlockedAch:[],trainLog:{},tasks:{daily:[],extra:[]},lastDailyReset:null};state.activeDog=name;saveState();closeModal();renderAll();showToast('🐕 '+safe(name)+' ist jetzt dabei!')}
+function selectDog(name){state.activeDog=name;saveState();renderAll()}
+function removeDog(name,e){e.stopPropagation();if(state.dogs.length===1){showToast('❗ Einer muss hier die Pfotenstellung halten');return}state.dogs=state.dogs.filter(d=>d!==name);delete state.data[name];if(state.activeDog===name)state.activeDog=state.dogs[0];saveState();renderAll()}
+function renderDogBars(){['dogBar','dogBar2'].forEach(bid=>{const bar=document.getElementById(bid);if(!bar)return;bar.innerHTML=state.dogs.map(d=>`<div class="dog-chip ${d===state.activeDog?'active':''}" onclick="selectDog('${safe(d)}')">🐕 ${safe(d)}<span class="remove-dog" onclick="removeDog('${safe(d)}',event)" title="Entfernen">✕</span></div>`).join('')+`<button class="btn-add-dog" onclick="openAddDog()">+ Hund hinzufügen</button>`})}
+function markActiveDay(){const d=dog(),td=today();if(d.lastDate===td)return;const y=new Date();y.setDate(y.getDate()-1);const ys=y.toISOString().split('T')[0];if(d.lastDate===ys)d.streak++;else d.streak=d.lastDate?1:1;d.lastDate=td;saveState()}
+function getLevel(xp){let lv=LEVELS[0];for(const l of LEVELS)if(xp>=l.min)lv=l;else break;return lv}
+function getNextLevel(xp){for(const l of LEVELS)if(l.min>xp)return l;return null}
+function renderXP(){const d=dog(),lv=getLevel(d.xp),next=getNextLevel(d.xp);document.getElementById('levelBadge').textContent=`⭐ Level ${lv.lvl} – ${lv.name}`;if(next){const pct=((d.xp-lv.min)/(next.min-lv.min)*100).toFixed(1);document.getElementById('xpDisplay').textContent=`${d.xp} / ${next.min} VP`;document.getElementById('xpFill').style.width=pct+'%'}else{document.getElementById('xpDisplay').textContent=`${d.xp} VP – MAX!`;document.getElementById('xpFill').style.width='100%'}}
+function checkDailyReset(){const d=dog(),td=today();if(d.lastDailyReset===td)return;d.tasks.daily.forEach(t=>t.done=false);d.lastDailyReset=td;saveState()}
+function renderCategories(){const d=dog(),td=today(),todayLog=d.trainLog[td]||[];document.getElementById('catGrid').innerHTML=CATEGORIES.map(c=>{const done=todayLog.includes(c.id);return`<div class="cat-card ${done?'done':''}" style="--c:${c.color}" onclick="toggleCat('${c.id}')"><div class="check-mark">✓</div><div class="cat-icon">${c.icon}</div><div class="cat-name">${c.name}</div><div class="cat-desc">${c.desc}</div><div class="cat-count">+${c.xp} VP</div></div>`}).join('')}
+function toggleCat(id){const d=dog(),td=today();if(!d.trainLog[td])d.trainLog[td]=[];const log=d.trainLog[td],cat=CATEGORIES.find(c=>c.id===id);if(log.includes(id)){d.trainLog[td]=log.filter(x=>x!==id);d.xp=Math.max(0,d.xp-cat.xp);showToast(`❌ ${cat.name} zurückgenommen`)}else{log.push(id);d.xp+=cat.xp;d.totalSessions++;d.catsUsed=new Set(Object.values(d.trainLog).flat()).size;markActiveDay();showToast(`💛 ${cat.name} – +${cat.xp} VP`)}checkAchievements();saveState();renderAll()}
+function renderHeatmap(){const d=dog(),hm=document.getElementById('heatmap'),days=35,td=new Date(),dow=(td.getDay()+6)%7,start=new Date(td);start.setDate(start.getDate()-(days-1)-dow);let html='';for(let i=0;i<days;i++){const dt=new Date(start);dt.setDate(dt.getDate()+i);const key=dt.toISOString().split('T')[0],count=(d.trainLog[key]||[]).length,isToday=key===today(),heat=count===0?'':count===1?'heat1':count<=3?'heat2':count<=5?'heat3':'heat4';html+=`<div class="heatmap-day ${heat} ${isToday?'today':''}" title="${key}: ${count} Herzensmomente">${dt.getDate()}</div>`}hm.innerHTML=html}
+function addTask(type){const input=document.getElementById(type==='daily'?'dailyInput':'extraInput'),xpEl=document.getElementById(type==='daily'?'dailyXp':'extraXp'),label=input.value.trim();if(!label)return;dog().tasks[type].push({id:Date.now(),label,xp:parseInt(xpEl.value),done:false});input.value='';saveState();renderTasks()}
+function toggleTask(type,id){const d=dog(),t=d.tasks[type].find(x=>x.id===id);if(!t)return;t.done=!t.done;if(t.done){d.xp+=t.xp;d.tasksDone++;markActiveDay();showToast(`💛 +${t.xp} VP für „${safe(t.label)}”`);checkAchievements()}else d.xp=Math.max(0,d.xp-t.xp);saveState();renderAll()}
+function deleteTask(type,id,e){e.stopPropagation();dog().tasks[type]=dog().tasks[type].filter(t=>t.id!==id);saveState();renderTasks()}
+function renderTasks(){['daily','extra'].forEach(type=>{const list=document.getElementById(type+'List'),tasks=dog().tasks[type];if(!tasks.length){list.innerHTML=`<li style="font-size:.85rem;color:var(--wood);padding:10px;text-align:center;opacity:.65">Noch leer – trag einen kleinen Moment ein.</li>`;return}list.innerHTML=tasks.map(t=>`<li class="task-item ${t.done?'done':''}" onclick="toggleTask('${type}',${t.id})"><div class="task-check">${t.done?'✓':''}</div><span class="task-label">${safe(t.label)}</span><span class="task-xp">+${t.xp} VP</span><span class="task-del" onclick="deleteTask('${type}',${t.id},event)" title="Löschen">🗑</span></li>`).join('')})}
+function renderStats(){const d=dog(),allLogs=Object.values(d.trainLog).flat();document.getElementById('statsRow').innerHTML=[{num:d.xp,lbl:'Verbindungspunkte'},{num:d.streak,lbl:'Tage verbunden 🔥'},{num:d.totalSessions,lbl:'Momente'},{num:d.tasksDone,lbl:'Kleine Schritte ✅'},{num:Object.keys(d.trainLog).length,lbl:'Aktive Tage'}].map(s=>`<div class="stat-tile"><div class="stat-num">${s.num}</div><div class="stat-lbl">${s.lbl}</div></div>`).join('');
+document.getElementById('catStats').innerHTML=CATEGORIES.map(c=>{const cnt=allLogs.filter(x=>x===c.id).length,pct=allLogs.length?(cnt/allLogs.length*100).toFixed(0):0;return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="font-size:1.3rem;width:28px;text-align:center">${c.icon}</span><div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:var(--bark);margin-bottom:3px"><span>${c.name}</span><span>${cnt}×</span></div><div style="height:8px;background:var(--warm);border-radius:999px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${c.color};border-radius:999px"></div></div></div></div>`}).join('');
+const days7=[],names=['Mo','Di','Mi','Do','Fr','Sa','So'];for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);const key=dt.toISOString().split('T')[0];days7.push({label:names[(dt.getDay()+6)%7],cnt:(d.trainLog[key]||[]).length})}const max=Math.max(...days7.map(x=>x.cnt),1);document.getElementById('weekStats').innerHTML=`<div style="display:flex;gap:10px;align-items:flex-end;height:100px;margin-top:8px">`+days7.map(x=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px"><div style="flex:1;width:100%;display:flex;align-items:flex-end"><div style="width:100%;height:${Math.max(x.cnt/max*100,3)}%;background:var(--amber);border-radius:6px 6px 0 0;min-height:${x.cnt?'8px':'3px'};opacity:${x.cnt?1:.25}"></div></div><div style="font-size:.72rem;font-weight:700;color:var(--wood)">${x.label}</div></div>`).join('')+`</div>`}
+function checkAchievements(){const d=dog(),stats={xp:d.xp,streak:d.streak,totalSessions:d.totalSessions,tasksDone:d.tasksDone,catsUsed:d.catsUsed,dogs:state.dogs.length};ACHIEVEMENTS.forEach(a=>{if(!d.unlockedAch.includes(a.id)&&a.cond(stats)){d.unlockedAch.push(a.id);showToast(`🏆 Mutmacher freigeschaltet: ${a.name}`)}})}
+function renderAchievements(){const d=dog();document.getElementById('achGrid').innerHTML=ACHIEVEMENTS.map(a=>{const unlocked=d.unlockedAch.includes(a.id);return`<div class="ach-card ${unlocked?'unlocked':''}"><div class="ach-icon">${a.icon}</div><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div>${!unlocked?`<div class="ach-lock">🔒 Noch nicht</div>`:''}</div>`}).join('')}
+function renderAll(){checkDailyReset();renderDogBars();renderCategories();renderXP();renderHeatmap();renderTasks();renderStats();renderAchievements();document.getElementById('streakNum').textContent=dog().streak}
+renderAll();
+</script>
+</body>
+</html>
